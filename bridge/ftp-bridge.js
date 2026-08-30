@@ -6,7 +6,7 @@ import { Buffer } from "buffer";
 const app = express();
 app.use(express.json({ limit: "50mb" }));
 
-const API_KEY = process.env.BRIDGE_API_KEY || "jaws-ftp-bridge-2026";
+const API_KEY = "jaws-bridge-nirmako-2026";
 const FTP_HOST = process.env.FTP_HOST || "giowm1082.siteground.biz";
 const FTP_USER = process.env.FTP_USER || "nirmako@tabxle.com";
 const FTP_PASS = process.env.FTP_PASS || "";
