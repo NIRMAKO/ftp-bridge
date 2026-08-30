@@ -25,7 +25,7 @@ const SERVERS = {
     user: process.env.FTP_ENTABX_USER || "nir@en.tabx.co.il",
     pass: process.env.FTP_ENTABX_PASS || "zlNyIoiDp4C3tzUx",
     port: parseInt(process.env.FTP_ENTABX_PORT || "21"),
-    secure: process.env.FTP_ENTABX_SECURE !== "false",
+    secure: process.env.FTP_ENTABX_SECURE === "true",
     rootPath: "/",
   },
   tabx: {
@@ -34,7 +34,7 @@ const SERVERS = {
     user: process.env.FTP_TABX_USER || "nir@tabx.co.il",
     pass: process.env.FTP_TABX_PASS || "",
     port: parseInt(process.env.FTP_TABX_PORT || "21"),
-    secure: process.env.FTP_TABX_SECURE !== "false",
+    secure: process.env.FTP_TABX_SECURE === "true",
     rootPath: "/",
   },
 };
