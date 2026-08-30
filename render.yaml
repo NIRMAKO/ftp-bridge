@@ -29,4 +29,4 @@ services:
       - key: FTP_ENTABX_PORT
         value: "21"
       - key: FTP_ENTABX_SECURE
-        value: "true"
+        value: "false"
