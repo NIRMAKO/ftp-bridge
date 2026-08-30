@@ -1,0 +1,14 @@
+{
+  "name": "ftp-bridge",
+  "version": "1.0.0",
+  "description": "HTTP-to-FTP bridge for SiteGround",
+  "main": "ftp-bridge.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ftp-bridge.js"
+  },
+  "dependencies": {
+    "basic-ftp": "^5.0.5",
+    "express": "^4.19.2"
+  }
+}
