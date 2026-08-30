@@ -358,6 +358,64 @@ app.post("/transfer", async (req, res) => {
   }
 });
 
+
+// ── Debug endpoint ─────────────────────────────────
+app.get("/debug", async (req, res) => {
+  const serverId = req.query.server || "tabxle";
+  const config = SERVERS[serverId];
+  if (!config) return res.status(404).json({ error: "Unknown server" });
+  
+  const result = {
+    serverId,
+    name: config.name,
+    host: config.host,
+    port: config.port,
+    user: config.user,
+    secure: config.secure,
+    rootPath: config.rootPath,
+    hasPass: !!config.pass,
+    passLength: config.pass ? config.pass.length : 0,
+  };
+  
+  // Try DNS resolution
+  try {
+    const dns = await import("node:dns").then(m => m.promises);
+    const addresses = await dns.resolve4(config.host);
+    result.dns = { ok: true, addresses };
+  } catch (err) {
+    result.dns = { ok: false, error: err.message };
+  }
+  
+  // Try raw TCP connection
+  try {
+    const net = await import("node:net");
+    const socket = new net.default.Socket();
+    socket.setTimeout(10000);
+    
+    const tcpResult = await new Promise((resolve) => {
+      socket.on("connect", () => {
+        socket.destroy();
+        resolve({ ok: true, message: "TCP connected" });
+      });
+      socket.on("timeout", () => {
+        socket.destroy();
+        resolve({ ok: false, error: "TCP timeout" });
+      });
+      socket.on("error", (err) => {
+        socket.destroy();
+        resolve({ ok: false, error: err.message });
+      });
+      socket.connect(config.port, config.host);
+    });
+    
+    result.tcp = tcpResult;
+  } catch (err) {
+    result.tcp = { ok: false, error: err.message };
+  }
+  
+  res.json({ ok: true, debug: result });
+});
+
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`FTP Bridge v2.0 running on port ${PORT}`);
