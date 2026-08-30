@@ -18,7 +18,5 @@ services:
         value: "21"
       - key: FTP_SECURE
         value: "true"
-      - key: BRIDGE_API_KEY
-        generateValue: true
       - key: FTP_PASS
         sync: false
