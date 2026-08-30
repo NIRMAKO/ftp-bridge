@@ -59,7 +59,7 @@ app.use(authMiddleware);
 
 async function getClient(serverId) {
   const config = getServerConfig(serverId);
-  const client = new ftp.Client(30000);
+  const client = new ftp.Client(15000); // 15s timeout
   client.ftp.verbose = false;
   await client.access({
     host: config.host,
@@ -70,6 +70,12 @@ async function getClient(serverId) {
   });
   return { client, config };
 }
+
+// ── Health (fast — no FTP check, just return ok) ───
+// Render health check must respond quickly
+app.get("/health", async (req, res) => {
+  res.json({ ok: true, servers: Object.keys(SERVERS) });
+});
 
 // ── List servers ────────────────────────────────────
 app.get("/servers", async (req, res) => {
@@ -86,46 +92,35 @@ app.get("/servers", async (req, res) => {
   res.json({ ok: true, servers: result });
 });
 
-// ── Health (default server or specified) ───────────
-app.get("/health", async (req, res) => {
+// ── Check server health (slow — checks FTP connection) ─
+app.get("/check", async (req, res) => {
   const serverId = req.query.server;
   const results = {};
   
-  if (serverId) {
-    // Check specific server
+  const serversToCheck = serverId ? [serverId] : Object.keys(SERVERS);
+  
+  for (const id of serversToCheck) {
+    const config = SERVERS[id];
+    if (!config) {
+      results[id] = { ok: false, error: "Unknown server" };
+      continue;
+    }
+    if (!config.pass) {
+      results[id] = { ok: false, error: "No password configured", name: config.name };
+      continue;
+    }
     try {
-      const { client, config } = await getClient(serverId);
+      const { client } = await getClient(id);
       const list = await client.list(config.rootPath);
       await client.close();
-      results[serverId] = {
+      results[id] = {
         ok: true,
         host: config.host,
         name: config.name,
         rootItems: list.length,
       };
     } catch (err) {
-      results[serverId] = { ok: false, error: err.message, name: SERVERS[serverId]?.name };
-    }
-  } else {
-    // Check all servers
-    for (const [id, config] of Object.entries(SERVERS)) {
-      if (!config.pass && id !== "tabxle") {
-        results[id] = { ok: false, error: "No password configured", name: config.name };
-        continue;
-      }
-      try {
-        const { client } = await getClient(id);
-        const list = await client.list(config.rootPath);
-        await client.close();
-        results[id] = {
-          ok: true,
-          host: config.host,
-          name: config.name,
-          rootItems: list.length,
-        };
-      } catch (err) {
-        results[id] = { ok: false, error: err.message, name: config.name };
-      }
+      results[id] = { ok: false, error: err.message, name: config.name };
     }
   }
   res.json({ ok: true, servers: results });
@@ -365,7 +360,6 @@ app.post("/transfer", async (req, res) => {
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(`FTP Bridge running on port ${PORT}`);
+  console.log(`FTP Bridge v2.0 running on port ${PORT}`);
   console.log(`Servers: ${Object.keys(SERVERS).join(", ")}`);
 });
-// Deploy trigger: Sun Aug 30 11:26:35 UTC 2026
