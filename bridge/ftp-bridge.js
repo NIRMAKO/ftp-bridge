@@ -421,3 +421,14 @@ app.listen(PORT, () => {
   console.log(`FTP Bridge v2.0 running on port ${PORT}`);
   console.log(`Servers: ${Object.keys(SERVERS).join(", ")}`);
 });
+
+// ── Get outbound IP ────────────────────────────────
+app.get("/my-ip", async (req, res) => {
+  try {
+    const resp = await fetch("https://api.ipify.org?format=json");
+    const data = await resp.json();
+    res.json({ ok: true, ip: data.ip });
+  } catch (err) {
+    res.json({ ok: false, error: err.message });
+  }
+});
