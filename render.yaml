@@ -20,3 +20,13 @@ services:
         value: "true"
       - key: FTP_PASS
         sync: false
+      - key: FTP_ENTABX_HOST
+        value: ftp.s267.upress.link
+      - key: FTP_ENTABX_USER
+        value: nir@en.tabx.co.il
+      - key: FTP_ENTABX_PASS
+        value: zlNyIoiDp4C3tzUx
+      - key: FTP_ENTABX_PORT
+        value: "21"
+      - key: FTP_ENTABX_SECURE
+        value: "true"

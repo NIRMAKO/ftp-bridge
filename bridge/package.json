@@ -1,7 +1,7 @@
 {
   "name": "ftp-bridge",
-  "version": "1.0.0",
-  "description": "HTTP-to-FTP bridge for SiteGround",
+  "version": "2.0.0",
+  "description": "HTTP-to-FTP multi-server bridge for NIRMAKO",
   "main": "ftp-bridge.js",
   "type": "module",
   "scripts": {
